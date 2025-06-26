@@ -104,7 +104,7 @@ async function scrapeSearchResult(
           ...options.scrapeOptions,
           maxAge: 4 * 60 * 60 * 1000,
         },
-        internalOptions: { teamId: options.teamId },
+        internalOptions: { teamId: options.teamId, bypassBilling: true },
         origin: options.origin,
         is_scrape: true,
         startTime: Date.now(),

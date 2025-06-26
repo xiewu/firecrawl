@@ -268,7 +268,8 @@ describe("Billing tests", () => {
 
             const rc2 = (await creditUsage(identity)).remaining_credits;
 
-            expect(rc1 - rc2).toBeGreaterThan(results.length);
+            const expectedCredits = results.length * 5;
+            expect(rc1 - rc2).toBe(expectedCredits);
         }, 600000);
 
         it.concurrent("bills search with PDF correctly", async () => {
