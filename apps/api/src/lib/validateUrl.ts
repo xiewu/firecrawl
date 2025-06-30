@@ -73,18 +73,11 @@ export function isSameDomain(url: string, baseUrl: string) {
   const typedUrlObj1 = urlObj1 as URL;
   const typedUrlObj2 = urlObj2 as URL;
 
-  const cleanHostname = (hostname: string) => {
-    return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
-  };
+  const hostname1 = normalizeHostnameForComparison(typedUrlObj1.hostname);
+  const hostname2 = normalizeHostnameForComparison(typedUrlObj2.hostname);
 
-  const domain1 = cleanHostname(typedUrlObj1.hostname)
-    .split(".")
-    .slice(-2)
-    .join(".");
-  const domain2 = cleanHostname(typedUrlObj2.hostname)
-    .split(".")
-    .slice(-2)
-    .join(".");
+  const domain1 = hostname1.split(".").slice(-2).join(".");
+  const domain2 = hostname2.split(".").slice(-2).join(".");
 
   return domain1 === domain2;
 }
@@ -100,27 +93,14 @@ export function isSameSubdomain(url: string, baseUrl: string) {
   const typedUrlObj1 = urlObj1 as URL;
   const typedUrlObj2 = urlObj2 as URL;
 
-  const cleanHostname = (hostname: string) => {
-    return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
-  };
+  const hostname1 = normalizeHostnameForComparison(typedUrlObj1.hostname);
+  const hostname2 = normalizeHostnameForComparison(typedUrlObj2.hostname);
 
-  const domain1 = cleanHostname(typedUrlObj1.hostname)
-    .split(".")
-    .slice(-2)
-    .join(".");
-  const domain2 = cleanHostname(typedUrlObj2.hostname)
-    .split(".")
-    .slice(-2)
-    .join(".");
+  const domain1 = hostname1.split(".").slice(-2).join(".");
+  const domain2 = hostname2.split(".").slice(-2).join(".");
 
-  const subdomain1 = cleanHostname(typedUrlObj1.hostname)
-    .split(".")
-    .slice(0, -2)
-    .join(".");
-  const subdomain2 = cleanHostname(typedUrlObj2.hostname)
-    .split(".")
-    .slice(0, -2)
-    .join(".");
+  const subdomain1 = hostname1.split(".").slice(0, -2).join(".");
+  const subdomain2 = hostname2.split(".").slice(0, -2).join(".");
 
   // Check if the domains are the same and the subdomains are the same
   return domain1 === domain2 && subdomain1 === subdomain2;
@@ -152,13 +132,22 @@ export const checkAndUpdateURLForMap = (url: string) => {
   return { urlObj: typedUrlObj, url: url };
 };
 
+export function normalizeHostnameForComparison(hostname: string): string {
+  try {
+    const url = new URL(`http://${hostname}`);
+    return url.hostname.replace(/^www\./, "");
+  } catch {
+    return hostname.replace(/^www\./, "");
+  }
+}
+
 export function removeDuplicateUrls(urls: string[]): string[] {
   const urlMap = new Map<string, string>();
 
   for (const url of urls) {
     const parsedUrl = new URL(url);
     const protocol = parsedUrl.protocol;
-    const hostname = parsedUrl.hostname.replace(/^www\./, "");
+    const hostname = normalizeHostnameForComparison(parsedUrl.hostname);
     const path = parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
 
     const key = `${hostname}${path}`;
