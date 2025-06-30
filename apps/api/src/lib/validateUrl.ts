@@ -133,11 +133,20 @@ export const checkAndUpdateURLForMap = (url: string) => {
 };
 
 export function normalizeHostnameForComparison(hostname: string): string {
+  if (!hostname || typeof hostname !== 'string') {
+    return '';
+  }
+  
+  const trimmed = hostname.trim();
+  if (!trimmed) {
+    return '';
+  }
+  
   try {
-    const url = new URL(`http://${hostname}`);
+    const url = new URL(`http://${trimmed}`);
     return url.hostname.replace(/^www\./, "");
   } catch {
-    return hostname.replace(/^www\./, "");
+    return trimmed.replace(/^www\./, "");
   }
 }
 
